@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Picture from './Picture';
+import { useDrop } from 'react-dnd';
 
 import '../App.css';
 
@@ -19,6 +20,22 @@ const pics = [
 ];
 
 function DragDrop() {
+	const [board, setBoard] = useState([]);
+
+	const [{ isOver }, drop] = useDrop(() => ({
+		accept: 'image',
+		drop: (item) => addImageToBoard(item.id),
+		collect: (monitor) => ({
+			isOver: !!monitor.isOver(),
+		}),
+	}));
+
+	const addImageToBoard = (id) => {
+		console.log(id);
+		const picList = pics.filter((picture) => id === picture.id);
+		setBoard((board) => [...board, picList[0]]);
+	};
+
 	return (
 		<>
 			<div className="pictures">
@@ -26,7 +43,11 @@ function DragDrop() {
 					return <Picture url={picture.url} id={picture.id} />;
 				})}
 			</div>
-			<div className="board"></div>
+			<div className="board" ref={drop}>
+				{board.map((picture) => {
+					return <Picture url={picture.url} id={picture.id} />;
+				})}
+			</div>
 		</>
 	);
 }
